@@ -1,23 +1,6 @@
 require(ncdf4)
 
-### IDENTIFY COMPUTER AND SET WORKING DIRECTORIES
-
-hostname<-system('hostname',intern=TRUE)
-
-if(hostname=='uncertainty.rap.ucar.edu'|substr(hostname,1,3)=='vpn'){
-
-  source('/Volumes/d1/naddor/hc1_home/scripts/r_scripts/set_paths.R')
-
-} else {
-
-  source('/home/naddor/scripts/r_scripts/set_paths.R')
-
-}
-
-source(paste(dir_r_scripts,'read_catchment_data.R',sep=''))
-source(paste(dir_r_scripts,'catch_clustering/extract_elev_bands.R',sep=''))
-source(paste(dir_r_scripts,'fusex/create_fuse_settings.R',sep=''))
-
+# load ET functions
 dir_my_functions<-paste0(dir_r_scripts,'my_functions/') # needed for my_functions_pot_evap
 source(paste(dir_r_scripts,'my_functions/my_functions_pot_evap.R',sep=''))
 
@@ -42,50 +25,28 @@ create_fuse_input_files<-function(id,huc=9999,country,
 
   ### WRITE FORCING FILE - CONTAINS BY DEFAULT THE FORCING AND DISCHARGE FOR THE WHOLE 1980-2014 PERIOD
 
-  if(country=='us'){
+  input_table<-get_catchment_data_dataframe(huc,id,date_start_forcing,date_end_forcing)
 
-    input_table<-get_catchment_data_dataframe(huc,id,date_start_forcing,date_end_forcing)
+  YYYY<-as.numeric(substr(input_table$date,1,4))
+  MM<-sprintf('%02s',substr(input_table$date,5,6))
+  DD<-sprintf('%02s',substr(input_table$date,7,8))
+  t_allyears<-as.Date(paste0(YYYY,MM,DD),format='%Y%m%d')
 
-    YYYY<-as.numeric(substr(input_table$date,1,4))
-    MM<-sprintf('%02s',substr(input_table$date,5,6))
-    DD<-sprintf('%02s',substr(input_table$date,7,8))
-    t_allyears<-as.Date(paste0(YYYY,MM,DD),format='%Y%m%d')
+  # deal with missing values in forcing data
+  if(any(c(is.na(input_table$temp_min+input_table$temp_min),is.na(input_table$prec),is.na(input_table$pet)))){
 
-    # deal with missing values in forcing data
-    if(any(c(is.na(input_table$temp_min+input_table$temp_min),is.na(input_table$prec),is.na(input_table$pet)))){
-
-      #stop('Missing values were found in the forcing data.')
-
-    }
-
-    prec<-input_table$prec
-    temp<-(input_table$temp_min+input_table$temp_max)/2
-    q_obs<-input_table$q_obs
-    pet<-input_table$pet
+    #stop('Missing values were found in the forcing data.')
 
   }
+
+  prec<-input_table$prec
+  temp<-(input_table$temp_min+input_table$temp_max)/2
+  q_obs<-input_table$q_obs
+  pet<-input_table$pet
 
   # compute PET using Oudin
   pet_o_harm<-pet_oudin(temp=temp,d=t_allyears,lat=gauge_lat,'harm')
   pet_o_mov_window<-pet_oudin(temp=temp,d=t_allyears,lat=gauge_lat,'mov_window')
-
-  if(any(!is.na(pet[1:1000]))){
-
-    pdf(paste0(dir_plots,'fusex/test_pet/',country,'_',id,'_pet.pdf'))
-
-    plot(t_allyears[1:1000],pet[1:1000],ylim=c(0,max(c(pet,pet_o_harm,pet_o_mov_window),na.rm=TRUE)))
-    lines(t_allyears[1:1000],pet_o_harm[1:1000],col='darkorange2',lwd=2)
-    lines(t_allyears[1:1000],pet_o_mov_window[1:1000],col='cadetblue3',lwd=2)
-
-    if(id=='x9269'){
-
-      lines(t_allyears[1:1000],pet_wrong[1:1000],col='red',type='p',pch=4)
-
-    }
-
-    dev.off()
-
-  }
 
   # define period simulated
   i_start_sim<-which(format(t_allyears,'%Y%m%d')==date_start_sim)
@@ -124,24 +85,5 @@ create_fuse_input_files<-function(id,huc=9999,country,
   ncvar_put(nc_conn,pet_nc,vals=pet)
   ncvar_put(nc_conn,q_obs_nc,vals=q_obs)
   nc_close(nc_conn)
-
-  # RETURN
-
-  list_return<-list()
-
-  if(return_frac_avail_qobs){
-
-    list_return[['frac_avail_qobs']]<-frac_avail_qobs
-
-  }
-
-  if(return_hs_ci){
-
-    list_return[['clim_ind']]<-clim_ind
-    list_return[['hydro_sign']]<-hydro_sign
-
-  }
-
-  return(list_return)
 
 }

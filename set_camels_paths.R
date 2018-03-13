@@ -1,4 +1,3 @@
-
 # function to set paths to CAMELS directories
 set_camels_paths<-function(camels_version){
 
@@ -18,14 +17,16 @@ set_camels_paths<-function(camels_version){
 
 }
 
-# function to load all the attributes into the global environment
+# function to load all attributes from txt files into the global environment
 load_camels_data<-function(camels_version){
 
   set_camels_paths(camels_version)
 
   print(paste('loading attr. from:',dir_camels_public))
 
-  # note that '<<-' created the variables in the global environment
+  # note that '<<-' creates the variables in the global environment,
+  # so that they are accessible from outside of this function
+
   camels_name<<-read.table(file=paste(dir_camels_public,'camels_name.txt',sep=''),
                           header=TRUE,sep=';',quote='')
   camels_topo<<-read.table(file=paste(dir_camels_public,'camels_topo.txt',sep=''),
