@@ -37,9 +37,12 @@ country<-'us'
 fuse_id<-902 # VIC WITH SNOW
 
 # define period for which to extract forcing
-date_start_forcing<-'19801001' # start of Maurer time series for CAMELS basins
+date_start_forcing<-'19800101'
 date_end_forcing<-'20081231'   # end of Maurer time series for CAMELS basins
 forcing_dataset<-'maurer'
+forcing_ref<-'Maurer et al., 2002'
+q_obs_ref<-'HCDN-2009, Lins, 2012'
+pet_ref<-'Priestly and Taylor, 1972; Newman et al., 2015'
 
 # define period for the hydrological simulations
 # Andy: "The calibration period was WY2000-2008 and validation was WY1990-1999.
@@ -59,7 +62,8 @@ for (exp_name in c('cal','val')){
   }else{
 
     # Evaluation benchmark study
-    date_start_sim<-'1980-01-01'
+    # date_start_sim<-'1980-01-01'
+    date_start_sim<-'1981-10-01' # start of Maurer simulation
     date_end_sim<-'1999-09-30'
     date_start_eval<-'1989-10-01'
     date_end_eval<-'1999-09-30'   # same as date_end_sim
@@ -67,9 +71,10 @@ for (exp_name in c('cal','val')){
   }
 
   # create file manager files
-  file_name<-paste0(dir_fuse_bin,'fm_',fuse_id,'_benchmark_',exp_name,'.txt')
+  name_file_manager<-paste0('fm_',fuse_id,'_',forcing_dataset,'_benchmark_',exp_name,'.txt')
+  path_file_manager<-paste0(dir_fuse_bin,name_file_manager)
 
-  write_file_manager(file_name,dir_input,dir_output,dir_settings,fuse_id,
+  write_file_manager(path_file_manager,dir_input,dir_output,dir_settings,fuse_id,
                      date_start_sim,date_end_sim,date_start_eval,date_end_eval)
 
 }
@@ -82,7 +87,7 @@ for(i in 1:dim(camels_name)[1]){
 
   print(paste(i,'-',camels_name$gauge_name[i]))
 
-  # retrieve hydrometeorological time series
+  # retrieve hydrometeorological time series for desired data set
   input_table<-get_catchment_data_dataframe(huc,id,date_start_forcing,date_end_forcing,forcing_dataset)
   t_input<-as.Date(input_table$date,format='%Y%m%d')
   prec<-input_table$prec
@@ -98,16 +103,17 @@ for(i in 1:dim(camels_name)[1]){
   name_input_file<-paste(country,'_',id,'_',forcing_dataset,'_input.nc',sep='')
 
   write_input_file_nc(temp,prec,pet,q_obs,t_input,
+                      temp_ref=forcing_ref,prec_ref=forcing_ref,pet_ref,q_obs_ref,
                       lat=camels_topo$gauge_lat[i],lon=camels_topo$gauge_lon[i],
                       na_value=-9999,
                       dir_input,name_input_file)
 
-  name_input_info_file<-paste(country,'_',id,'_',forcing_dataset,'_input_info.txt',sep='')
+  name_input_info_file<-paste(country,'_',id,'_input_info.txt',sep='') # naming structure hard-coded in FUSE
 
   write_input_info(paste0(dir_settings,name_input_info_file),nc_input_file=name_input_file)
 
   # ELEV BANDS
-  elev_tab_format<-extract_camels_elev_bands(id,huc,keep_absolute_area)
+  elev_tab_format<-extract_camels_elev_bands(id,huc,FALSE)
 
   name_elev_file<-paste(country,'_',id,'_elev_bands.nc',sep='')
 
@@ -147,13 +153,13 @@ write('#!\\bin\\sh', name_batch_file_best, append=TRUE)
 
 for(id in id_us){
 
-  content<-paste0('/glade/u/home/naddor/fuse/bin/fuse_snow_dist_catch.exe us_',id,' ',fuse_id,' 1 run_def > us_',id,'_def.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',name_file_manager,' us_',id,' ',fuse_id,' run_def > us_',id,'_def.out')
   write(content, name_batch_file_def, append=TRUE)
 
-  content<-paste0('/glade/u/home/naddor/fuse/bin/fuse_snow_dist_catch.exe us_',id,' ',fuse_id,' 1 calib_sce > us_',id,'_',fuse_id,'_sce.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',name_file_manager,' us_',id,' ',fuse_id,' calib_sce > us_',id,'_',fuse_id,'_sce.out')
   write(content, name_batch_file_sce, append=TRUE)
 
-  content<-paste0('/glade/u/home/naddor/fuse/bin/fuse_snow_dist_catch.exe us_',id,' ',fuse_id,' 1 run_best > us_',id,'_',fuse_id,'_best.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',name_file_manager,' us_',id,' ',fuse_id,' run_best > us_',id,'_',fuse_id,'_best.out')
   write(content, name_batch_file_best, append=TRUE)
 
 }

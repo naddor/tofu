@@ -22,7 +22,7 @@ extract_camels_elev_bands<-function(id,huc,keep_absolute_area=FALSE){
   rel_error_geospa<-(total_area_elev_bands*1E-6/area_geospa)-1
 
   if(abs(rel_error_geospa)>0.01){
-    stop('Total area elevation zones does not match Geospatial Fabric area')
+    #stop('Total area elevation zones does not match Geospatial Fabric area')
   }
 
   # create table in FUSE format
