@@ -1,7 +1,7 @@
 require(ncdf4)
 
 write_input_file_nc<-function(temp,prec,pet,q_obs,t_input,
-                               gauge_lat=-9999,gauge_lon=-9999,
+                               lat=-9999,lon=-9999,
                                na_value=-9999,
                                dir_input,name_forcing_file){
 
@@ -26,7 +26,7 @@ write_input_file_nc<-function(temp,prec,pet,q_obs,t_input,
                  longname='Mean observed daily discharge')
 
   # write variables to file
-  input_file_nc<-paste0(dir_input,'/',name_forcing_file)
+  input_file_nc<-paste0(dir_input,name_forcing_file)
 
   nc_conn<-nc_create(input_file_nc,list(tas_nc,pr_nc,pet_nc,q_obs_nc))
   ncvar_put(nc_conn,tas_nc,vals=temp)
@@ -45,7 +45,7 @@ write_input_info<-function(file_name,nc_input_file){
 ! (variables can be in any order)
 ! -----------------------------------------------------------------------------------------------------------
 <version>         FORCINGINFO.VERSION.2.1              ! string to ensure version of file matches the code
-<forcefile>       ',nc_input_file,'! name of data file
+<forcefile>       ',nc_input_file,'   ! name of data file
 <vname_iy>        undefined                            ! name of variable for year
 <vname_im>        undefined                            ! name of variable for month
 <vname_id>        undefined                            ! name of variable for day
