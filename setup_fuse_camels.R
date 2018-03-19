@@ -98,7 +98,7 @@ for(i in 1:dim(camels_name)[1]){
   name_input_file<-paste(country,'_',id,'_',forcing_dataset,'_input.nc',sep='')
 
   write_input_file_nc(temp,prec,pet,q_obs,t_input,
-                      gauge_lat=-camels_topo$gauge_lat[i],gauge_lon=camels_topo$gauge_lon[i],
+                      lat=camels_topo$gauge_lat[i],lon=camels_topo$gauge_lon[i],
                       na_value=-9999,
                       dir_input,name_input_file)
 
@@ -107,8 +107,12 @@ for(i in 1:dim(camels_name)[1]){
   write_input_info(paste0(dir_settings,name_input_info_file),nc_input_file=name_input_file)
 
   # ELEV BANDS
-  create_elevation_bands()
+  elev_tab_format<-extract_camels_elev_bands(id,huc,keep_absolute_area)
 
+  name_elev_file<-paste(country,'_',id,'_elev_bands.nc',sep='')
+
+  write_elev_bands_nc(elev_tab_format,lat=camels_topo$gauge_lat[i],lon=camels_topo$gauge_lon[i],
+                      dir_input,name_elev_file)
 
 }
 
