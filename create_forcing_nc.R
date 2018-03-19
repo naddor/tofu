@@ -1,9 +1,10 @@
 require(ncdf4)
 
 write_input_file_nc<-function(temp,prec,pet,q_obs,t_input,
-                               lat=-9999,lon=-9999,
-                               na_value=-9999,
-                               dir_input,name_forcing_file){
+                              temp_ref,prec_ref,pet_ref,q_obs_ref,
+                              lat=-9999,lon=-9999,
+                              na_value=-9999,
+                              dir_input,name_forcing_file){
 
   # check array length
   if(any(diff(c(length(temp),length(prec),length(pet),length(q_obs),length(t_input)))!=0)){
@@ -11,19 +12,19 @@ write_input_file_nc<-function(temp,prec,pet,q_obs,t_input,
   }
 
   # define dimensions
-  dim_lon<-ncdim_def("longitude","degreesE",gauge_lon)
-  dim_lat<-ncdim_def("latitude","degreesN",gauge_lat)
+  dim_lon<-ncdim_def("longitude","degreesE",lon)
+  dim_lat<-ncdim_def("latitude","degreesN",lat)
   dim_time<-ncdim_def("time",paste("days since 1970-01-01"),as.numeric(t_input),unlim=TRUE)
 
   # define variables
   tas_nc<-ncvar_def('temp','degC',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                 longname='Mean daily temperature')
+                longname=paste0('Catchment-averaged daily temperature (',temp_ref,')'))
   pr_nc<-ncvar_def('pr','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                longname='Mean daily precipitation')
+                longname=paste0('Catchment-averaged daily precipitation (',prec_ref,')'))
   pet_nc<-ncvar_def('pet','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                longname='Potential evaportanspiration estimated using Oudin et al., 2005, JoH')
+                longname=paste0('Catchment-averaged daily potential evapotranspiration (',pet_ref,')'))
   q_obs_nc<-ncvar_def('q_obs','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                 longname='Mean observed daily discharge')
+                longname=paste0('Daily discharge (',q_obs_ref,')'))
 
   # write variables to file
   input_file_nc<-paste0(dir_input,name_forcing_file)
