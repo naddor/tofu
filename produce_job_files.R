@@ -26,7 +26,7 @@ n_nodes<-floor(671/n_cpus)
 camels_topo_rk<-camels_topo[order(camels_topo$abs_rel_error_area,decreasing=FALSE),] # rank catchments by relative error
 id_us<-camels_topo_rk[1:(n_cpus*n_nodes),'gauge_id']
 
-dir_qsub<-paste0('/glade/u/home/naddor/qsub/param_transfer_maurer/',fuse_id,'/')
+dir_qsub<-paste0('/glade/scratch/naddor/qsub/param_transfer_maurer/',fuse_id,'/')
 dir_fuse_bin<-paste0('/glade/u/home/naddor/fuse/bin/')
 
 if(!dir.exists(dir_qsub)){
