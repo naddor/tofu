@@ -7,10 +7,25 @@ set_camels_paths<-function(camels_version){
   print(paste('dir_catch_attr:    ',dir_catch_attr))
 
   # data_public
-  dir_camels_public<<-paste0(dir_data,'basin_attributes/data_public/camels_attributes_v',camels_version,'/')
+
+
+  if(hostname=='hydro-c1'){
+
+    dir_camels_public<<-paste0(dir_data,'basin_attributes/data_public/camels_attributes_v',camels_version,'/')
+
+  }else if(strtrim(hostname,8)=='cheyenne'){
+
+    dir_camels_public<<-paste0('/glade/u/home/naddor/data/camels_attributes_v',camels_version,'/')
+
+  }else{
+
+    stop(paste('Unkown hostname:',hostname))
+
+  }
+
   print(paste('dir_camels_public: ',dir_camels_public))
 
-  # data for CAMELS
+  # other data for CAMELS
   dir_mpr_input<<-paste(dir_root,'home/mizukami/MPR/input/',sep='')
   dir_statsgo_mapping<<-paste(dir_root,'d3/mizukami/domain_huc/poly2poly_weight/ToHCDN/',sep='')
   dir_r_scripts_catch_attr<<-paste(dir_r_scripts,'catch_clustering/',sep='')
@@ -55,5 +70,5 @@ load_camels_data<-function(camels_version){
 }
 
 # print short instructions
-print('Type <set_camels_paths(\'2.0\')> to set all the paths for v2.0')
-print('Type <load_camels_data(\'2.0\')> to load all catchment attributes for v2.0')
+print('Type <set_camels_paths(\'2.1\')> to set all the paths for v2.1')
+print('Type <load_camels_data(\'2.1\')> to load all catchment attributes for v2.1')
