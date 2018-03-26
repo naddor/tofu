@@ -15,12 +15,23 @@ if(hostname=='hydro-c1'){
 
 }
 
+# FUSE setup
+country<-'us'
+fuse_id<-902 # VIC WITH SNOW
+
+# define period for which to extract forcing
+date_start_forcing<-'19800101'
+date_end_forcing<-'20081231'   # end of Maurer time series for CAMELS basins
+forcing_dataset<-'maurer'
+forcing_ref<-'Maurer et al., 2002'
+q_obs_ref<-'HCDN-2009, Lins, 2012'
+
 # set directories for FUSE files
 dir_fuse_bin<-'/home/naddor/fuse/bin/'
 dir_fuse_bin_ch<-'/glade/u/home/naddor/fuse/bin/'
-dir_fuse_files<-'/d7/naddor/fuse/param_transfer_maurer/'
+dir_fuse_files<-paste0('/d7/naddor/fuse/param_transfer_',forcing_dataset,'/')
 dir_input<-paste0(dir_fuse_files,'input/'); if(!dir.exists(dir_input)){dir.create(dir_input)}
-dir_output<-paste0(dir_fuse_files,'output/'); if(!dir.exists(dir_output)){dir.create(dir_output)}
+dir_output<-paste0(dir_fuse_files,'output_',fuse_id,'/'); if(!dir.exists(dir_output)){dir.create(dir_output)}
 dir_settings<-paste0(dir_fuse_files,'settings/'); if(!dir.exists(dir_settings)){dir.create(dir_settings)}
 
 # load functions
@@ -34,17 +45,6 @@ source(paste(dir_r_scripts,'fusex/write_qsub.R',sep=''))
 dir_my_functions<-paste0(dir_r_scripts,'my_functions/') # needed in my_functions_pot_evap
 source(paste(dir_r_scripts,'my_functions/my_functions_pot_evap.R',sep=''))
 
-# FUSE setup
-country<-'us'
-fuse_id<-902 # VIC WITH SNOW
-
-# define period for which to extract forcing
-date_start_forcing<-'19800101'
-date_end_forcing<-'20081231'   # end of Maurer time series for CAMELS basins
-forcing_dataset<-'maurer'
-forcing_ref<-'Maurer et al., 2002'
-q_obs_ref<-'HCDN-2009, Lins, 2012'
-pet_ref<-'Priestly and Taylor, 1972; Newman et al., 2015'
 
 # define period for the hydrological simulations
 # Andy: "The calibration period was WY2000-2008 and validation was WY1990-1999.
@@ -92,6 +92,7 @@ for(i in 1:dim(camels_name)[1]){
 
   id<-camels_name$gauge_id[i]
   huc<-camels_name$huc_02[i]
+  gauge_lat<-camels_topo$gauge_lat[i]
 
   print(paste(i,'-',camels_name$gauge_name[i]))
 
@@ -101,11 +102,15 @@ for(i in 1:dim(camels_name)[1]){
   prec<-input_table$prec
   temp<-(input_table$temp_min+input_table$temp_max)/2
   q_obs<-input_table$q_obs
-  pet<-input_table$pet
+  #pet<-input_table$pet
 
   # compute PET using Oudin
-  # pet_o_harm<-pet_oudin(temp=temp,d=t_input,lat=gauge_lat,'harm')
-  # pet_o_mov_window<-pet_oudin(temp=temp,d=t_input,lat=gauge_lat,'mov_window')
+  pet_ref<-'Oudin et al., 2005' # for NetCDF metadata
+  pet<-pet_oudin(temp=temp,d=t_input,lat=gauge_lat,'harm')
+  pet_mov<-pet_oudin(temp=temp,d=t_input,lat=gauge_lat,'mov_window')
+
+  #plot(t_input[1:1000],pet[1:1000],type='l')
+  #lines(t_input[1:1000],pet_mov[1:1000],type='l',col='orange')
 
   # save forcing to NetCDF file
   name_input_file<-paste(country,'_',id,'_',forcing_dataset,'_input.nc',sep='')
@@ -129,50 +134,3 @@ for(i in 1:dim(camels_name)[1]){
                       dir_input,name_elev_file)
 
 }
-
-### CREATE JOB FILE
-
-set.seed(42)
-#id_us<-camels_clim$gauge_id[(order(camels_clim$frac_snow,decreasing=TRUE))[1:(3*36)]] # catchments with greatest snow fraction
-n_nodes<-3
-id_us<-camels_clim$gauge_id[sample(1:length(camels_clim$gauge_id),n_nodes*36)]
-
-qsub_dir<-'/home/naddor/qsub_cheyenne/param_transfer_maurer/'
-
-name_batch_file_def<-paste0(qsub_dir,'def/param_transfer_maurer_def.txt')
-name_qsub_file_def<-paste0(qsub_dir,'def/param_transfer_maurer_def.bsh')
-
-name_batch_file_sce<-paste0(qsub_dir,'sce/param_transfer_maurer_sce.txt')
-name_qsub_file_sce<-paste0(qsub_dir,'sce/param_transfer_maurer_sce.bsh')
-
-name_batch_file_best<-paste0(qsub_dir,'best/param_transfer_maurer_best.txt')
-name_qsub_file_best<-paste0(qsub_dir,'best/param_transfer_maurer_best.bsh')
-
-if(file.exists(name_batch_file_def)){
-
-  system(paste('rm',name_batch_file_def))
-  system(paste('rm',name_batch_file_sce))
-  system(paste('rm',name_batch_file_best))
-
-}
-
-write('#!\\bin\\sh', name_batch_file_def, append=TRUE)
-write('#!\\bin\\sh', name_batch_file_sce, append=TRUE)
-write('#!\\bin\\sh', name_batch_file_best, append=TRUE)
-
-for(id in id_us){
-
-  content<-paste0(dir_fuse_bin_ch,'fuse.exe ',dir_fuse_bin_ch,'fm_902_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_def > us_',id,'_def.out')
-  write(content, name_batch_file_def, append=TRUE)
-
-  content<-paste0(dir_fuse_bin_ch,'fuse.exe ',dir_fuse_bin_ch,'fm_902_maurer_benchmark_cal.txt us_',id,' ',fuse_id,' calib_sce > us_',id,'_sce.out')
-  write(content, name_batch_file_sce, append=TRUE)
-
-  content<-paste0(dir_fuse_bin_ch,'fuse.exe ',dir_fuse_bin_ch,'fm_902_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_best > us_',id,'_best.out')
-  write(content, name_batch_file_best, append=TRUE)
-
-}
-
-write_qsub(name_qsub_file_def,name_batch_file_def,batch_name='fp_def',n_nodes)
-write_qsub(name_qsub_file_sce,name_batch_file_sce,batch_name='fp_sce',n_nodes)
-write_qsub(name_qsub_file_best,name_batch_file_best,batch_name='fp_best',n_nodes)
