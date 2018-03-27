@@ -18,7 +18,7 @@ if(strtrim(hostname,8)=='cheyenne'){
 source(paste(dir_r_scripts,'fusex/write_qsub.R',sep=''))
 
 ### CREATE JOB FILE
-fuse_id=902
+fuse_id=900
 n_cpus<-36 # number of cpus per node
 n_nodes<-floor(671/n_cpus)
 
@@ -59,13 +59,13 @@ write('#!\\bin\\sh',name_batch_file_best,append=TRUE)
 
 for(id in id_us){
 
-  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_902_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_def > us_',id,'_def.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_def > us_',id,'_def.out')
   write(content, name_batch_file_def, append=TRUE)
 
-  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_902_maurer_benchmark_cal.txt us_',id,' ',fuse_id,' calib_sce > us_',id,'_sce.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_cal.txt us_',id,' ',fuse_id,' calib_sce > us_',id,'_sce.out')
   write(content, name_batch_file_sce, append=TRUE)
 
-  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_902_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_best > us_',id,'_best.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_best > us_',id,'_best.out')
   write(content, name_batch_file_best, append=TRUE)
 
 }
