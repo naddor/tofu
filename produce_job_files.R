@@ -34,6 +34,7 @@ if(!dir.exists(dir_qsub)){
   dir.create(paste0(dir_qsub,'def/'))
   dir.create(paste0(dir_qsub,'sce/'))
   dir.create(paste0(dir_qsub,'best/'))
+  dir.create(paste0(dir_qsub,'pre/'))
 }
 
 name_batch_file_def<-paste0(dir_qsub,'def/param_transfer_maurer_',fuse_id,'_def.txt')
@@ -45,31 +46,31 @@ name_qsub_file_sce<-paste0(dir_qsub,'sce/param_transfer_maurer_',fuse_id,'_sce.b
 name_batch_file_best<-paste0(dir_qsub,'best/param_transfer_maurer_',fuse_id,'_best.txt')
 name_qsub_file_best<-paste0(dir_qsub,'best/param_transfer_maurer_',fuse_id,'_best.bsh')
 
-if(file.exists(name_batch_file_def)){
+name_batch_file_pre<-paste0(dir_qsub,'pre/param_transfer_maurer_',fuse_id,'_best.txt')
+name_qsub_file_pre<-paste0(dir_qsub,'pre/param_transfer_maurer_',fuse_id,'_best.bsh')
 
-  system(paste('rm',name_batch_file_def))
-  system(paste('rm',name_batch_file_sce))
-  system(paste('rm',name_batch_file_best))
-
-}
-
-write('#!\\bin\\sh',name_batch_file_def,append=TRUE)
-write('#!\\bin\\sh',name_batch_file_sce,append=TRUE)
-write('#!\\bin\\sh',name_batch_file_best,append=TRUE)
+write('#!\\bin\\sh',name_batch_file_def,append=FALSE)
+write('#!\\bin\\sh',name_batch_file_sce,append=FALSE)
+write('#!\\bin\\sh',name_batch_file_best,append=FALSE)
+write('#!\\bin\\sh',name_batch_file_pre,append=FALSE)
 
 for(id in id_us){
 
   content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_def > us_',id,'_def.out')
-  write(content, name_batch_file_def, append=TRUE)
+  write(content, name_batch_file_def,append=TRUE)
 
   content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_cal.txt us_',id,' ',fuse_id,' calib_sce > us_',id,'_sce.out')
-  write(content, name_batch_file_sce, append=TRUE)
+  write(content, name_batch_file_sce,append=TRUE)
 
   content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_best > us_',id,'_best.out')
-  write(content, name_batch_file_best, append=TRUE)
+  write(content, name_batch_file_best,append=TRUE)
+
+  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_maurer_benchmark_all.txt us_',id,' ',fuse_id,' run_pre ',dir_fuse_bin,'list_param_all_',fuse_id,'.txt > us_',id,'_pre.out')
+  write(content, name_batch_file_pre,append=TRUE)
 
 }
 
 write_qsub(name_qsub_file_def,name_batch_file_def,batch_name=paste0('fp_def_',fuse_id),n_nodes)
 write_qsub(name_qsub_file_sce,name_batch_file_sce,batch_name=paste0('fp_sce_',fuse_id),n_nodes)
 write_qsub(name_qsub_file_best,name_batch_file_best,batch_name=paste0('fp_best_',fuse_id),n_nodes)
+write_qsub(name_qsub_file_pre,name_batch_file_pre,batch_name=paste0('fp_pre_',fuse_id),n_nodes)

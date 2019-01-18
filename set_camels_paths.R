@@ -7,8 +7,6 @@ set_camels_paths<-function(camels_version){
   print(paste('dir_catch_attr:    ',dir_catch_attr))
 
   # data_public
-
-
   if(hostname=='hydro-c1'){
 
     dir_camels_public<<-paste0(dir_data,'basin_attributes/data_public/camels_attributes_v',camels_version,'/')

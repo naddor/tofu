@@ -21,7 +21,7 @@ fuse_id<-902 # VIC WITH SNOW
 
 # define period for which to extract forcing
 date_start_forcing<-'19800101'
-date_end_forcing<-'20081231'   # end of Maurer time series for CAMELS basins
+date_end_forcing<-'20081231' # end of Maurer time series for CAMELS basins
 forcing_dataset<-'maurer'
 forcing_ref<-'Maurer et al., 2002'
 q_obs_ref<-'HCDN-2009, Lins, 2012'
