@@ -3,12 +3,12 @@ rm(list=ls())
 require(ncdf4)
 
 # set dir
-dir_param<-'/glade/u/home/naddor/case_studies_fuse/fuse_grid/output/'
+dir_param<-'/gpfs/ts0/projects/Research_Project-CLES-00008/fuse/fuse_grid/output/'
 
 # open standard (one catchment) parameter file
 nc_file_runs_dist<-'cesm1-cam5_902_runs_def.nc'           # for lat/lon
 nc_file_para_lumped<-'cesm1-cam5_902_para_def.nc'         # template for variables name, long name and unit
-nc_file_para_dist<-'cesm1-cam5_902_para_def_dist_test.nc' # will be created
+nc_file_para_dist<-'cesm1-cam5_902_para_def_dist_new.nc' # will be created
 
 # get lat and lon from runs
 nc_id_runs<-nc_open(paste0(dir_param,nc_file_runs_dist))
@@ -16,7 +16,7 @@ longitude<-ncvar_get(nc_id_runs,'longitude')
 latitude<-ncvar_get(nc_id_runs,'latitude')
 nc_close(nc_id_runs)
 
-# open and process lumped file
+# open and process parameter file
 nc_id_param_lumped<-nc_open(paste0(dir_param,nc_file_para_lumped))
 all_vars<-nc_id_param_lumped['var'][[1]]
 var_names<-names(all_vars) # get var names
@@ -47,8 +47,17 @@ for(v in var_to_include){
 
   var_val<-as.vector(ncvar_get(nc_id_param_lumped,var_names[v]))
 
-  ncvar_put(nc_conn,nc_var_list[[v]],
-            vals=array(var_val*rnorm(length(longitude)*length(latitude),mean=1,sd=0.3),dim=c(length(longitude),length(latitude))))
+  if(var_names[v]=='RFERR_MLT'){ # don't introduce perturbation in rainfall multiplier
+
+    para_dist<-array(var_val*rnorm(length(longitude)*length(latitude),mean=1,0))
+
+  }else{
+
+    para_dist<-array(var_val*rnorm(length(longitude)*length(latitude),mean=1,sd=0.3))
+
+  }
+
+  ncvar_put(nc_conn,nc_var_list[[v]],vals=para_dist)
 
 }
 
