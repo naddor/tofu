@@ -5,21 +5,11 @@ require(RColorBrewer)
 require(stats)
 
 # SET GENERIC PATHS
-hostname<-system('hostname',intern=TRUE)
-
-if(hostname=='hydro-c1'){
-
-  source('/home/naddor/scripts/r_scripts/tofu/set_default_paths.R')  # set all paths
-
-} else {
-
-  source('/glade/u/home/naddor/scripts/r_scripts/tofu/set_default_paths.R')  # set all paths
-  source('/glade/u/home/naddor/scripts/r_scripts/tofu/set_camels_paths.R')
-
-}
+source(paste0(dir_r_scripts,'/tofu/set_default_paths.R'))  # set all paths))
+#source(paste0(dir_r_scripts,'/tofu/set_camels_paths.R'))  # set all paths))
 
 source(paste0(dir_r_scripts,'camels/hydro/hydro_accuracy.R'))
-source(paste0(dir_r_scripts,'param_transfer_maurer/compute_nse_hs.R'))
+#source(paste0(dir_r_scripts,'param_transfer_maurer/compute_nse_hs.R'))
 
 dir_plots<-paste0(dir_plots,'param_transfer_maurer/')
 
@@ -38,14 +28,14 @@ date_end_val='19990930'
 for(fuse_id in fuse_id_list){
 
   ### SET DIRS
-  dir_fuse_output<-paste0('/glade/scratch/naddor/fuse/param_transfer_maurer/output_',fuse_id,'/')
+  dir_fuse_output<-paste0('/gpfs/ts0/projects/Research_Project-CLES-00008/camels_us/time_series/output_obs/fuse_output_maurer_isca/',fuse_id,'/')
 
   # get list of simulation files
-  files_pre_run<-system(paste0('ls ',dir_fuse_output,'*runs_pre*'),intern=TRUE)
+  files_pre_run<-system(paste0('ls ',dir_fuse_output,'*runs_pre_catch*'),intern=TRUE)
   n_catch<-length(files_pre_run)
 
   # get list of donor catchments
-  donor_catch_raw<-read.table(paste0('/glade/u/home/naddor/fuse/bin/list_param_all_',fuse_id,'.txt'))
+  donor_catch_raw<-read.table(paste0('/gpfs/ts0/home/na491/fuse/bin/list_param_all_',fuse_id,'.txt'))
   donor_catch<-rapply(strsplit(as.character(donor_catch_raw[,1]),'_'),function(x) x[2])
 
   catch_att<-merge(data.frame(gauge_id=donor_catch),camels_topo)
