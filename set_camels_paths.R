@@ -1,19 +1,23 @@
 # function to set paths to CAMELS directories
 set_camels_paths<-function(camels_version){
 
-  # data_raw
-  dir_catch_attr<<-paste0(dir_data,'basin_attributes/data_raw/camels_attributes_v',camels_version,'/') # set directory in which to save the catchment attributes
-  dir_catch_attr_temp<<-paste0(dir_catch_attr,'temp/') # set directory in which to temporarily save the catchment attributes
-  print(paste('dir_catch_attr:    ',dir_catch_attr))
+  # set directory in which to save the catchment attributes (dir_catch_attr)
+  # set directory where publicly available data are saved (dir_camels_public)
 
-  # data_public
   if(hostname=='hydro-c1'){
 
+    dir_catch_attr   <<-paste0(dir_data,'basin_attributes/data_raw/camels_attributes_v',camels_version,'/')
     dir_camels_public<<-paste0(dir_data,'basin_attributes/data_public/camels_attributes_v',camels_version,'/')
 
   }else if(strtrim(hostname,8)=='cheyenne'){
 
+    dir_catch_attr<<-NA #TBD
     dir_camels_public<<-paste0('/glade/u/home/naddor/data/camels_attributes_v',camels_version,'/')
+
+  }else if(strtrim(hostname,5)=='login'){
+
+    dir_catch_attr   <<-paste0('/gpfs/ts0/projects/Research_Project-CLES-00008/camels_us/attributes/data_raw/camels_attributes_v',camels_version,'/')
+    dir_camels_public<<-paste0('/gpfs/ts0/projects/Research_Project-CLES-00008/camels_us/attributes/data_public/camels_attributes_v',camels_version,'/')
 
   }else{
 
@@ -21,6 +25,8 @@ set_camels_paths<-function(camels_version){
 
   }
 
+  dir_catch_attr_temp<<-paste0(dir_catch_attr,'temp/') # set directory in which to temporarily save the catchment attributes
+  print(paste('dir_catch_attr:    ',dir_catch_attr))
   print(paste('dir_camels_public: ',dir_camels_public))
 
   # other data for CAMELS

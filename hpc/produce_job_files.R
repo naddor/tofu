@@ -1,25 +1,12 @@
 rm(list=ls())
 
-# identify computer and set directories
-hostname<-system('hostname',intern=TRUE)
-
-if(strtrim(hostname,8)=='cheyenne'){
-
-  source('/glade/u/home/naddor/scripts/r_scripts/tofu/set_default_paths.R')
-  source('/glade/u/home/naddor/scripts/r_scripts/tofu/set_camels_paths.R')
-  load_camels_data('2.1') # load CAMELS attributes
-
-} else {
-
-  stop('You are not running this script from cheyenne!')
-
-}
-
-source(paste(dir_r_scripts,'fusex/write_qsub.R',sep=''))
+source(paste(dir_r_scripts,'tofu/hpc/write_qsub_isca.R',sep=''))
+source(paste(dir_r_scripts,'tofu/set_camels_paths.R',sep=''))
+load_camels_data('2.1') # load CAMELS attributes
 
 ### CREATE JOB FILE
 fuse_id=900
-n_cpus<-36 # number of cpus per node
+n_cpus<-16 # number of cpus per node
 n_nodes<-floor(671/n_cpus)
 
 # select catchments with low area error

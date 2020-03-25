@@ -5,7 +5,7 @@ require(RColorBrewer)
 require(stats)
 
 # SET GENERIC PATHS
-source(paste0(dir_r_scripts,'/tofu/set_default_paths.R'))  # set all paths))
+#source(paste0(dir_r_scripts,'/tofu/set_default_paths.R'))  # set all paths))
 #source(paste0(dir_r_scripts,'/tofu/set_camels_paths.R'))  # set all paths))
 
 source(paste0(dir_r_scripts,'camels/hydro/hydro_accuracy.R'))

@@ -1,10 +1,10 @@
-write_qsub<-function(qsub_file,cmd_file,batch_name,n_nodes,queue='regular'){
+write_qsub<-function(qsub_file,cmd_file,batch_name,project_key,n_nodes,queue='regular'){
 
   content<-paste0('#!/bin/bash
 # Job Name
 #PBS -N ',batch_name,
 '\n# Project code
-#PBS -A P48500028
+#PBS -A ',project_key,'
 #PBS -l walltime=12:00:00
 #PBS -q ',queue,'
 # Merge output and error files
