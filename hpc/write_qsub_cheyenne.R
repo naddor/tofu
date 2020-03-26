@@ -1,4 +1,4 @@
-write_qsub<-function(qsub_file,cmd_file,batch_name,project_key,n_nodes,queue='regular'){
+write_qsub_cheyenne<-function(qsub_file,cmd_file,batch_name,project_key,n_nodes,queue='regular'){
 
   content<-paste0('#!/bin/bash
 # Job Name

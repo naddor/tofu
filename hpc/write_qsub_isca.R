@@ -1,4 +1,4 @@
-write_qsub<-function(qsub_file,cmd_file,batch_name,project_key,n_nodes,queue='pq'){
+write_qsub_isca<-function(qsub_file,cmd_file,batch_name,project_key,n_nodes,queue='pq'){
 
   content<-paste0('#!/bin/bash
 # Job Name
