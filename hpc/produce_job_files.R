@@ -65,7 +65,11 @@ for(id in id_us){
 
 }
 
-write_qsub_isca(name_qsub_file_def,name_batch_file_def,batch_name=paste0('fp_def_',fuse_id),project_key=project_key_isca,n_nodes)
-write_qsub_isca(name_qsub_file_sce,name_batch_file_sce,batch_name=paste0('fp_sce_',fuse_id),project_key=project_key_isca,n_nodes)
-write_qsub_isca(name_qsub_file_best,name_batch_file_best,batch_name=paste0('fp_best_',fuse_id),project_key=project_key_isca,n_nodes)
-write_qsub_isca(name_qsub_file_pre,name_batch_file_pre,batch_name=paste0('fp_pre_',fuse_id),project_key=project_key_isca,n_nodes)
+write_qsub_isca(name_qsub_file_def,name_batch_file_def,batch_name=paste0('fp_def_',fuse_id),
+                project_key=project_key_isca,n_nodes=1,queue='sq',walltime_hours=1)
+write_qsub_isca(name_qsub_file_sce,name_batch_file_sce,batch_name=paste0('fp_sce_',fuse_id),
+                project_key=project_key_isca,n_nodes,queue='pq',walltime_hours=5)
+write_qsub_isca(name_qsub_file_best,name_batch_file_best,batch_name=paste0('fp_best_',fuse_id),
+                project_key=project_key_isca,n_nodes=1,queue='sq',walltime_hours=1)
+write_qsub_isca(name_qsub_file_pre,name_batch_file_pre,batch_name=paste0('fp_pre_',fuse_id),
+                project_key=project_key_isca,n_nodes,queue='pq',walltime_hours=5)
