@@ -27,7 +27,7 @@ if(!dir.exists(dir_qsub)){
 }
 
 # create list of catchments to use as donors
-list_donors<-paste0('us_',id_us,'900_para_best.nc')
+list_donors<-paste0('us_',id_us,'_900_para_best.nc')
 file_list_donors<-paste0(dir_fuse_bin,'list_param_900_test.txt')
 write(list_donors,file_list_donors,append=FALSE)
 
@@ -49,15 +49,18 @@ write('#!/bin/sh',name_batch_file_sce,append=FALSE)
 write('#!/bin/sh',name_batch_file_best,append=FALSE)
 write('#!/bin/sh',name_batch_file_pre,append=FALSE)
 
+system(paste('chmod a+x',name_batch_file_def))
+system(paste('chmod a+x',name_batch_file_best))
+
 for(id in id_us){
 
-  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_test_val.txt us_',id,' run_def > ',dir_qsub,'def/us_',id,'_def.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_test_val.txt us_',id,' run_def > ',dir_qsub,'def/us_',id,'_def.out &') # to be run on one core -> &
   write(content, name_batch_file_def,append=TRUE)
 
   content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_test_cal.txt us_',id,' calib_sce > ',dir_qsub,'sce/us_',id,'_sce.out')
   write(content, name_batch_file_sce,append=TRUE)
 
-  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_test_val.txt us_',id,' run_best > ',dir_qsub,'best/us_',id,'_best.out')
+  content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_test_val.txt us_',id,' run_best > ',dir_qsub,'best/us_',id,'_best.out &') # to be run on one core -> &
   write(content, name_batch_file_best,append=TRUE)
 
   content<-paste0(dir_fuse_bin,'fuse.exe ',dir_fuse_bin,'fm_',fuse_id,'_test_val.txt us_',id,' run_pre_catch ',file_list_donors,' > ',dir_qsub,'pre/us_',id,'_pre.out')

@@ -1,6 +1,6 @@
 write_qsub_isca<-function(qsub_file,cmd_file,batch_name,project_key,n_nodes=1,queue='pq',walltime_hours){
 
-  pbs_header<-paste0('#!/bin/bash
+  pbs_header<-paste0('#!/bin/sh
 # Job Name
 #PBS -N ',batch_name,
 '\n# Project code

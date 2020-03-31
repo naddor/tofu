@@ -30,8 +30,8 @@ set_camels_paths<-function(camels_version){
   print(paste('dir_camels_public: ',dir_camels_public))
 
   # other data for CAMELS
-  dir_mpr_input<<-paste(dir_root,'home/mizukami/MPR/input/',sep='')
-  dir_statsgo_mapping<<-paste(dir_root,'d3/mizukami/domain_huc/poly2poly_weight/ToHCDN/',sep='')
+  #dir_mpr_input<<-paste(dir_root,'home/mizukami/MPR/input/',sep='')
+  #dir_statsgo_mapping<<-paste(dir_root,'d3/mizukami/domain_huc/poly2poly_weight/ToHCDN/',sep='')
   dir_r_scripts_catch_attr<<-paste(dir_r_scripts,'catch_clustering/',sep='')
 
 }
