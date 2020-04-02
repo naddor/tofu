@@ -1,14 +1,22 @@
 require(ncdf4)
 
-write_input_file_nc<-function(temp,prec,pet,q_obs,t_input,
-                              temp_ref,prec_ref,pet_ref,q_obs_ref,
+write_input_file_nc<-function(temp,prec,pet,t_input,q_obs=NA,
+                              temp_ref,prec_ref,pet_ref,q_obs_ref=NA,
                               lat=-9999,lon=-9999,
-                              na_value=-9999,
+                              na_value=-9999,include_qobs=TRUE,grid_mode=FALSE,
                               dir_input,name_forcing_file){
 
   # check array length
-  if(any(diff(c(length(temp),length(prec),length(pet),length(q_obs),length(t_input)))!=0)){
-    stop('temp, prec, pet, q_obs and t_allyears must have the same length')
+  if(grid_mode){
+    if(any(diff(c(length(temp),length(prec),length(pet),length(t_input)*length(lat)*length(lon)))!=0)){
+      stop('temp, prec and pet must have the same length')
+    } else if(length(temp)!=length(t_input)*length(lat)*length(lon)){
+      stop('in grid_mode, the length of temp must be correspond to the product of the length of lat, lon and t_input')
+    }
+  } else {
+      if(any(diff(c(length(temp),length(prec),length(pet),length(t_input)))!=0)){
+        stop('temp, prec, pet, and t_input must have the same length')
+      }
   }
 
   # define dimensions
@@ -23,17 +31,34 @@ write_input_file_nc<-function(temp,prec,pet,q_obs,t_input,
                 longname=paste0('Catchment-averaged daily precipitation (',prec_ref,')'))
   pet_nc<-ncvar_def('pet','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
                 longname=paste0('Catchment-averaged daily potential evapotranspiration (',pet_ref,')'))
-  q_obs_nc<-ncvar_def('q_obs','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                longname=paste0('Daily discharge (',q_obs_ref,')'))
+
+  if(include_q_obs){
+
+    if(length(temp)!=length(q_obs)){stop('Cannot write q_obs because its length is not right, make sure you have provided a time series or set include_qobs to FALSE.')}
+
+    q_obs_nc<-ncvar_def('q_obs','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
+    longname=paste0('Daily discharge (',q_obs_ref,')'))
+  }
 
   # write variables to file
   input_file_nc<-paste0(dir_input,name_forcing_file)
 
-  nc_conn<-nc_create(input_file_nc,list(tas_nc,pr_nc,pet_nc,q_obs_nc))
+  if(include_q_obs){
+
+    nc_conn<-nc_create(input_file_nc,list(tas_nc,pr_nc,pet_nc,q_obs_nc))
+
+  } else{
+
+    nc_conn<-nc_create(input_file_nc,list(tas_nc,pr_nc,pet_nc))
+
+  }
+
   ncvar_put(nc_conn,tas_nc,vals=temp)
   ncvar_put(nc_conn,pr_nc,vals=prec)
   ncvar_put(nc_conn,pet_nc,vals=pet)
-  ncvar_put(nc_conn,q_obs_nc,vals=q_obs)
+  if(include_q_obs){
+    ncvar_put(nc_conn,q_obs_nc,vals=q_obs)
+  }
   nc_close(nc_conn)
 
 }
