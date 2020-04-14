@@ -32,7 +32,7 @@ write_input_file_nc<-function(temp,prec,pet,t_input,q_obs=NA,
   pet_nc<-ncvar_def('pet','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
                 longname=paste0('Catchment-averaged daily potential evapotranspiration (',pet_ref,')'))
 
-  if(include_q_obs){
+  if(include_qobs){
 
     if(length(temp)!=length(q_obs)){stop('Cannot write q_obs because its length is not right, make sure you have provided a time series or set include_qobs to FALSE.')}
 
@@ -43,7 +43,7 @@ write_input_file_nc<-function(temp,prec,pet,t_input,q_obs=NA,
   # write variables to file
   input_file_nc<-paste0(dir_input,name_forcing_file)
 
-  if(include_q_obs){
+  if(include_qobs){
 
     nc_conn<-nc_create(input_file_nc,list(tas_nc,pr_nc,pet_nc,q_obs_nc))
 
@@ -56,7 +56,7 @@ write_input_file_nc<-function(temp,prec,pet,t_input,q_obs=NA,
   ncvar_put(nc_conn,tas_nc,vals=temp)
   ncvar_put(nc_conn,pr_nc,vals=prec)
   ncvar_put(nc_conn,pet_nc,vals=pet)
-  if(include_q_obs){
+  if(include_qobs){
     ncvar_put(nc_conn,q_obs_nc,vals=q_obs)
   }
   nc_close(nc_conn)
