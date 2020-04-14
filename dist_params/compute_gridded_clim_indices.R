@@ -34,6 +34,20 @@ get_tas_pr<-function(x){
 
 }
 
+# Test PET
+
+dt<-get_tas_pr(2000)
+i=100
+j=100
+
+dt_test<-dt[latitude==40.3125&longitude==-92.8125,,]
+
+temp<-dt_test$tas
+prec<-dt_test$pr
+d<-dt_test$time
+
+pet_oudin(temp,d,40.3125,aver_method='mov_window')
+
 # Load Maurer data over used to compute CAMELS indices - 1 October 1989 to 30 September 2009.
 
 start_year<-1990
