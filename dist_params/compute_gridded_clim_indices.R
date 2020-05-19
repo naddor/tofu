@@ -12,59 +12,11 @@ dir_r_scripts<-'~/scripts/r_scripts/'
 source(paste0(dir_r_scripts,'camels/clim/clim_indices.R'))
 source(paste0(dir_r_scripts,'/tools/my_functions_pot_evap.R'))
 
-dir_maurer<-'/gpfs/ts0/projects/Research_Project-CLES-00008/conus/Maurer_met_full/'
-
-# function loading temperature and preciptiation data from NetCDF files
-get_tas_pr<-function(x){
-
-  dt_pr<-ReadNetCDF(paste0(dir_maurer,'pr/nldas_met_update.obs.daily.pr.',x,'.nc'),vars='pr')
-
-  # assume temp data on extact same grid
-  dt_pr[, tas := ReadNetCDF(paste0(dir_maurer,'tas/nldas_met_update.obs.daily.tas.',x,'.nc'),vars='tas',out = "vector")]
-
-  # cautious (and slow) alternative
-  #dt_tas<-ReadNetCDF(paste0(dir_maurer,'tas/nldas_met_update.obs.daily.tas.',x,'.nc'),vars='tas')
-  #dt_pr[dt_tas, on=.(latitude,longitude,time), tas:=tas] # merge using lat/lon/time as key
-
-  setcolorder(dt_pr, c("longitude", "latitude", "time","pr","tas")) # reorder columns
-
-  print(paste('Data for',x,'loaded'))
-
-  return(dt_pr)
-
-}
-
-# Test PET
-
-dt<-get_tas_pr(2000)
-i=100
-j=100
-
-dt_test<-dt[latitude==40.3125&longitude==-92.8125,,]
-
-temp<-dt_test$tas
-prec<-dt_test$pr
-d<-dt_test$time
-
-pet_oudin(temp,d,40.3125,aver_method='mov_window')
-
 # Load Maurer data over used to compute CAMELS indices - 1 October 1989 to 30 September 2009.
-
 start_year<-1990
 end_year<-1990
-list_dt<-lapply(start_year:end_year,get_tas_pr)
-dt<-rbindlist(list_dt)
-rm(list_dt)
-
-# check time and copy lat
-if(any(diff(unique(dt$time))!=1)){stop('Days are missing')}
-dt[,lat:=latitude,] # copy lat to use in PET computation
-
-# use data.table estimate PET using Oudin et al. (2005) for each grid cell
-# should use the same approach as for CAMELS to compare attributes
-dt[!is.na(tas),pet:=pet_oudin(tas,time,lat,aver_method='mov_window'),by=.(latitude,longitude)]
-
-save(file=paste0('/gpfs/ts0/projects/Research_Project-CLES-00008/conus/indices/clim_indices_maurer_',start_year,'-',end_year,'_dt_only.Rdata'),dt)
+load(paste0(dir_input,start_year,'-',end_year,'_dt_only.Rdata'))
+load(paste0(dir_input,'1994_dt_only.Rdata'))
 
 # compute climate indices for each grid cell
 clim_indices<-dt[!is.na(tas),compute_climate_indices_berghuijs(tas,pr,pet,time,0.05),by=.(latitude,longitude)]

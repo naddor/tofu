@@ -4,6 +4,7 @@ library(ncdf4)
 
 dir_gf<-'/gpfs/ts0/projects/Research_Project-CLES-00008/mizuroute_data/GF_conus/'
 dir_fuse_conus<-'/gpfs/ts0/projects/Research_Project-CLES-00008/conus/fuse_conus/'
+dir_maurer_mx_ca<-'/gpfs/ts0/projects/Research_Project-CLES-00008/conus/Maurer_w_MX_CAN/'
 
 ### RUNOFF NETCDF FILES
 
@@ -21,11 +22,18 @@ lon_livneh_input<-ncvar_get(nc_id,'lon')
 dat_livneh_input<-ncvar_get(nc_id,'total_runoff')[,,1]
 nc_close(nc_id)
 
-# Maurer mizuroute
+# FUSE Maurer mizuroute
 nc_id<-nc_open(paste0(dir_fuse_conus,'output/maurer_1990_2009_900_runs_def.nc'))
 lat_maurer_fuse<-ncvar_get(nc_id,'latitude')
 lon_maurer_fuse<-ncvar_get(nc_id,'longitude')
 dat_maurer_fuse<-ncvar_get(nc_id,'q_instnt')[,,1]
+nc_close(nc_id)
+
+# Maurer with MX and CA
+nc_id<-nc_open(paste0(dir_maurer_mx_ca,'gridded_obs.daily.Prcp.1999.nc'))
+lat_maurer_mx<-ncvar_get(nc_id,'latitude')
+lon_maurer_mx<-ncvar_get(nc_id,'longitude')
+dat_maurer_mx<-ncvar_get(nc_id,'Prcp')[,,1]
 nc_close(nc_id)
 
 # visual test
@@ -34,6 +42,8 @@ X11()
 image(dat_livneh_input) # includes canada and mexico grid cells not contributing to streamflow in conus
 X11()
 image(dat_maurer_fuse) # does not include canadian part Columbia river basin
+X11()
+image(dat_maurer_mx) # does include canadian part Columbia river basin
 
 # check grid dimension -> liven 2 grid cells larger in both dimensions
 length(lat_maurer_input)
@@ -50,9 +60,12 @@ all(lon_maurer_input%in%lon_livneh_input)
 all(lat_maurer_input==lat_maurer_fuse)
 all(lon_maurer_input==lon_maurer_fuse)
 
+all(lat_maurer_input==lat_maurer_mx)
+all(lon_maurer_input==lon_maurer_mx)
+
 ### SPATIAL WEIGHTS NETCDF FILES
 
-# get lat/lon input maurer input
+# get spatial weight maurer
 nc_id<-nc_open(paste0(dir_gf,'ancillary_data/spatialweights_usbr12km_nhru_conus_mod.nc'))
 dim_data<-ncvar_get(nc_id,'data')
 dim_polyid<-ncvar_get(nc_id,'polyid')

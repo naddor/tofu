@@ -8,6 +8,8 @@ dir_input<-'/gpfs/ts0/projects/Research_Project-CLES-00008/conus/fuse_conus/inpu
 file_input<-'maurer_1990_input.nc'
 file_elev<-'maurer_elev_bands_including_columbia.nc'
 
+
+
 # get lat/lon input
 nc_id<-nc_open(paste0(dir_input,file_input))
 lat_input<-ncvar_get(nc_id,'latitude')
@@ -15,7 +17,7 @@ lon_input<-ncvar_get(nc_id,'longitude')
 dat_input<-ncvar_get(nc_id,'temp')[,,1]
 nc_close(nc_id)
 
-# get lat/lon elev
+# get lat/lon elev bands
 nc_id<-nc_open(paste0(dir_input,file_elev))
 lat_elev<-ncvar_get(nc_id,'latitude')
 lon_elev<-ncvar_get(nc_id,'longitude')
