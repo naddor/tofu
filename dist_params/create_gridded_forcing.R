@@ -4,11 +4,12 @@ library(ncdf4)
 library(metR)
 library(data.table)
 
+# dir_r_scripts<-'~/scripts/r_scripts/'
 source(paste0(dir_r_scripts,'tofu/input_output_settings/create_forcing_nc.R'))
 
 # load forcing, including PET
 start_year<-1990
-end_year<-1990
+end_year<-2009
 load(paste0('/gpfs/ts0/projects/Research_Project-CLES-00008/conus/indices/clim_indices_maurer_',start_year,'-',end_year,'.Rdata'))
 
 # get dimensions
