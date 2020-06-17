@@ -25,12 +25,13 @@ write_input_file_nc<-function(temp,prec,pet,t_input,q_obs=NA,
   dim_time<-ncdim_def("time",paste("days since 1970-01-01"),as.numeric(t_input),unlim=TRUE)
 
   # define variables
+  spatial_mode<-ifelse(grid_mode,'Grid','Catchment')
   tas_nc<-ncvar_def('temp','degC',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                longname=paste0('Catchment-averaged daily temperature (',temp_ref,')'))
+                longname=paste0(spatial_mode,'-averaged daily temperature (',temp_ref,')'))
   pr_nc<-ncvar_def('pr','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                longname=paste0('Catchment-averaged daily precipitation (',prec_ref,')'))
+                longname=paste0(spatial_mode,'-averaged daily precipitation (',prec_ref,')'))
   pet_nc<-ncvar_def('pet','mm/day',dim=list(dim_lon,dim_lat,dim_time),missval=na_value,
-                longname=paste0('Catchment-averaged daily potential evapotranspiration (',pet_ref,')'))
+                longname=paste0(spatial_mode,'-averaged daily potential evapotranspiration (',pet_ref,')'))
 
   if(include_qobs){
 
