@@ -44,19 +44,19 @@ cdo merge wrf50_erai_metsim_pet.nc wrf50_erai_metsim_tas.nc wrf50_erai_metsim_pr
 
 * change missing value - the 4th argument must be either f or d (float or double) depending on the kind of the variable:
 ```
-ncatted -O -a _FillValue,pr,o,f,-9999. $my_file
-ncatted -O -a missing_value,pr,o,f,-9999. $my_file
+ncatted -O -a _FillValue,pr,o,f,-9999. my_file.nc
+ncatted -O -a missing_value,pr,o,f,-9999. my_file.nc
 ```
 
 * rename variables:
 ```
-ncrename -O -v t_mean,temp $my_file $my_file
-ncrename -O -v lon,longitude $my_file $my_file
+ncrename -O -v t_mean,temp $my_file my_file.nc
+ncrename -O -v lon,longitude $my_file my_file.nc
 ```
 * changes units:
 ```
-ncatted -O -a units,pr,m,c,"mm/day” $my_file $my_file
-ncatted -O -a units,pet,m,c,"mm/day” $my_file $my_file
+ncatted -O -a units,pr,m,c,"mm/day” my_file.nc my_file.nc
+ncatted -O -a units,pet,m,c,"mm/day” my_file.nc my_file.nc
 ```
 
 ### Regridding
@@ -69,6 +69,6 @@ cdo remapbil,grid_CN051.txt file.nc interpolated_file.nc # use this description 
 
 ### Split and recombine a domain (see [cdo doc](https://code.mpimet.mpg.de/projects/cdo/embedded/index.html#x1-1340002.2.12)) 
 ```
-cdo distgrid,nx[,ny]  infile obase
+cdo distgrid,nx[,ny] infile obase
 cdo collgrid infile[1-6] outfile
 ```
