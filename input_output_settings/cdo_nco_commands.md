@@ -16,22 +16,20 @@ ncatted -O -a _FillValue,pet,o,d,-9999. wrf50_erai_metsim_pet.nc
 ncatted -O -a missing_value,pet,o,d,-9999. iwrf50_erai_allvars_$y.nc
 ```
 
-
-* find period covered
+* find period covered:
 
 ```
 cdo showyear file.nc
-
 ```
 
-* extract data and create files for specific years
+* extract data and create files for specific years:
 ```
 for ((y=1979;y<=1989;y++)); do
     cdo selyear,$y cesm1-cam5_rcp85_r1i1p1_pet.nc cesm1-cam5_rcp85_r1i1p1_$y.nc;
 done
 ```
 
-* combine files for different variables (already on the same grid)
+* combine files for different variables (already on the same grid):
 
 ```
 for ((y=1979;y<=1989;y++)); do
@@ -39,7 +37,7 @@ for ((y=1979;y<=1989;y++)); do
 done
 ```
 
-* change metadata
+* change metadata:
 
 ```
 for ((y=1979;y<=1989;y++)); do
