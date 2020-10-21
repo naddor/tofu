@@ -10,17 +10,15 @@ cdo showdate file.nc
 
 ### Disaggregate files
 
-* extract data for a subdomain (longitudes from 120E to 90W and latitudes from 20N to 20S from all input fields):
+* extract data for a subdomain (e.g. longitudes from 120E to 90W and latitudes from 20N to 20S from all input fields):
 ```
 cdo sellonlatbox,120,-90,20,-20 ifile ofile
 ```
 
 * extract specific variables from a file containing multiple variables:
 ```
-for ((y=1979;y<=1989;y++)); do
-    ncks -v t_mean erai_gard_$y.nc  wrf50_erai_metsim_tas_$y.nc
-    ncks -v pcp erai_gard_$y.nc  wrf50_erai_metsim_pr_$y.nc
-done
+ncks -v t_mean erai_gard.nc  wrf50_erai_metsim_tas.nc
+ncks -v pcp erai_gard.nc  wrf50_erai_metsim_pr.nc
 ```
 
 * create files for specific years:
@@ -39,36 +37,26 @@ cdo mergetime file_1990.nc file_1991.nc file_1990-1991.nc
 
 * combine files for different variables (already on the same grid):
 ```
-for ((y=1979;y<=1989;y++)); do
-  cdo merge wrf50_erai_metsim_pet_$y.nc wrf50_erai_metsim_tas_$y.nc wrf50_erai_metsim_pr_$y.nc wrf50_erai_metsim_allvars_$y.nc;
-done
+cdo merge wrf50_erai_metsim_pet.nc wrf50_erai_metsim_tas.nc wrf50_erai_metsim_pr.nc wrf50_erai_metsim_allvars.nc;
 ```
 
 ### Change metadata
 
 * change missing value - the 4th argument must be either f or d (float or double) depending on the kind of the variable:
 ```
-#ncatted -O -a _FillValue,pr,o,f,-9999. $my_file
-#ncatted -O -a missing_value,pr,o,f,-9999. $my_file
+ncatted -O -a _FillValue,pr,o,f,-9999. $my_file
+ncatted -O -a missing_value,pr,o,f,-9999. $my_file
 ```
 
-* rename variables and change units:
+* rename variables:
 ```
-for ((y=1979;y<=1989;y++)); do
-
-  my_file=wrf50_erai_metsim_allvars_$y.nc
-
-  # rename variables
-  ncrename -O -v t_mean,temp $my_file $my_file
-  ncrename -O -v pcp,pr $my_file $my_file
-  ncrename -O -v lon,longitude $my_file $my_file
-  ncrename -O -v lat,latitude $my_file $my_file
-
-  # change units
-  ncatted -O -a units,pr,m,c,"mm/day” $my_file $my_file
-  ncatted -O -a units,pet,m,c,"mm/day” $my_file $my_file
-
-done
+ncrename -O -v t_mean,temp $my_file $my_file
+ncrename -O -v lon,longitude $my_file $my_file
+```
+* changes units:
+```
+ncatted -O -a units,pr,m,c,"mm/day” $my_file $my_file
+ncatted -O -a units,pet,m,c,"mm/day” $my_file $my_file
 ```
 
 ### Regridding
