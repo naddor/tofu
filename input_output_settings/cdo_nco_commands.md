@@ -3,11 +3,9 @@ This file contains examples of cdo and nco commands (in no specific order) that 
 ### Generic commands
 
 * find period covered by a file:
-
 ```
 cdo showyear file.nc
 cdo showdate file.nc
-
 ```
 
 ### Disaggregate files
@@ -18,7 +16,6 @@ cdo sellonlatbox,120,-90,20,-20 ifile ofile
 ```
 
 * extract specific variables from a file containing multiple variables:
-
 ```
 for ((y=1979;y<=1989;y++)); do
     ncks -v t_mean erai_gard_$y.nc  wrf50_erai_metsim_tas_$y.nc
@@ -41,24 +38,21 @@ cdo mergetime file_1990.nc file_1991.nc file_1990-1991.nc
 ```
 
 * combine files for different variables (already on the same grid):
-
 ```
 for ((y=1979;y<=1989;y++)); do
   cdo merge wrf50_erai_metsim_pet_$y.nc wrf50_erai_metsim_tas_$y.nc wrf50_erai_metsim_pr_$y.nc wrf50_erai_metsim_allvars_$y.nc;
 done
 ```
 
-## Change metadata
+### Change metadata
 
 * change missing value - the 4th argument must be either f or d (float or double) depending on the kind of the variable:
-
 ```
 #ncatted -O -a _FillValue,pr,o,f,-9999. $my_file
 #ncatted -O -a missing_value,pr,o,f,-9999. $my_file
 ```
 
 * rename variables and change units:
-
 ```
 for ((y=1979;y<=1989;y++)); do
 
@@ -80,18 +74,12 @@ done
 ### Regridding
 
 Perform bilinear interpolation:
-
 ```
 cdo griddes CN05.1_Pre_1961_2017_daily_025x025.nc> grid_CN051.txt  #creates grid description from a pre-existing file
-
-for file in pr_EAS-22_MOHC-HadGEM2-ES*.nc; do
-  fname=${file%.nc}
-  cdo remapbil,grid_CN051.txt ${fname}.nc res/${fname}.nc # use this description to perform interpolation
-done
+cdo remapbil,grid_CN051.txt file.nc interpolated_file.nc # use this description to perform interpolation
 ```
 
 ### Split and recombine a domain (see [cdo doc](https://code.mpimet.mpg.de/projects/cdo/embedded/index.html#x1-1340002.2.12)) 
-
 ```
 cdo distgrid,nx[,ny]  infile obase
 cdo collgrid infile[1-6] outfile
