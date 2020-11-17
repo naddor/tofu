@@ -1,0 +1,13 @@
+name: tofu_python
+channels:
+  - defaults
+dependencies:
+  - matplotlib
+  - dask
+  - jupyter
+  - xarray
+  - netcdf4
+  - nc-time-axis
+  - bottleneck
+  - numpy
+prefix: ~/anaconda3/envs/tofu_python
