@@ -1,4 +1,10 @@
-mizuRoute requires a calendar to be specified for the time dimension/variable
-use NCO to create (first "c") this (it will be a character string - second "c"):
+#mizuRoute requires a calendar to be specified for the time dimension/variable
+#use NCO to create (first "c") this (it will be a character string - second "c"):
 
 ncatted -a calendar,time,c,c,standard maurer_1990_900_runs_def.nc
+
+# change calendar to standard
+ncatted -a calendar,time,m,c,standard combined_run.nc
+
+#
+cdo -a setcalendar,standard combined_run.nc combined_run_std.nc
