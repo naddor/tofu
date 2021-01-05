@@ -62,7 +62,7 @@ get_tas_pr<-function(x,var){
 }
 
 # load data
-start_year<-1990
+start_year<-1975
 end_year<-1999
 
 dat_list<-lapply(start_year:end_year,get_tas_pr,'pr')
@@ -85,39 +85,47 @@ for(i in 1:dim(tas)[1]){
 
   for(j in 1:dim(tas)[2]){
 
+    print(paste(i,j))
+
     if(!any(is.na(tas[i,j,]))){
       pet[i,j,]<-pet_oudin(tas[i,j,],d_input,lat,aver_method='mov_window')
     }
   }
 }
 
-# fill in gaps in Maurer dataset including part of Canada and Mexico
-# (8 grid cells needed to run MizuRoute, mostly in California), this code
-# script fills in these gaps using the average of the eight neighbor cells.
+# Maurer_CA_MX forcing only - fill in gaps in 8 grid cells needed to run MizuRoute
+# (mostly in California), using the average of the eight neighbor cells.
 
 # indices of missing grid cells
 miss_row<-c(69,52,53,55,33,35,74,76)
 miss_col<-c(64,73,73,73,80,80,81,81)
 
-#visual check
+# visual check
 image(tas[,,1])
 
-# show values for missing grid cells
-tas[miss_row[4]+w,miss_col[4]+w,1]
+# size of the window to consider around missing cell
+w<-(-1:1)
 
-zonal_mean<-function(mat){return(mean(mat[mat!=-9999]))}
+#zonal_mean<-function(mat){return(mean(mat[mat!=-9999]))}
 
 for (m in 1:length(miss_row)){ # loop through grid cells with missing values
 
-  pet[miss_row[m],miss_col[m],]<-apply(pet[miss_row[m]+w,miss_col[m]+w,],3,zonal_mean)
-  tas[miss_row[m],miss_col[m],]<-apply(tas[miss_row[m]+w,miss_col[m]+w,],3,zonal_mean)
-  pr[miss_row[m],miss_col[m],]<-apply(pr[miss_row[m]+w,miss_col[m]+w,],3,zonal_mean)
+  print(pet[miss_row[m]+w,miss_col[m]+w,1]) # before: show values around missing cell
+
+  pet[miss_row[m],miss_col[m],]<-apply(pet[miss_row[m]+w,miss_col[m]+w,],3,mean,na.rm=TRUE)
+  tas[miss_row[m],miss_col[m],]<-apply(tas[miss_row[m]+w,miss_col[m]+w,],3,mean,na.rm=TRUE)
+  pr[miss_row[m],miss_col[m],]<-apply(pr[miss_row[m]+w,miss_col[m]+w,],3,mean,na.rm=TRUE)
+
+  print(pet[miss_row[m]+w,miss_col[m]+w,1]) # after: show values around missing cell
 
 }
 
+# visual check
+image(tas[,,1])
+
 ## write to disk
 write_input_file_nc(tas,pr,pet,d_input,q_obs=NA,
-                    'Maurer_MX_CA','Maurer_MX_CA','Oudin based on Maurer_MX_CA',q_obs_ref=NA,
+                    'Maurer_CA_MX - http://hydro.engr.scu.edu/files/gridded_obs/daily/ncfiles/','Maurer_MX_CA - http://hydro.engr.scu.edu/files/gridded_obs/daily/ncfiles/','Oudin et al. (2005) based on Maurer_CA_MX',q_obs_ref=NA,
                     lat,lon,
                     na_value=-9999,include_qobs=FALSE,grid_mode=TRUE,
-                    dir_input,paste0('test_loop_filled_',start_year,'_',end_year,'.nc'))
+                    paste0(dir_input,'all/'),paste0('conus_ca_mx_',start_year,'_',end_year,'.nc'))
