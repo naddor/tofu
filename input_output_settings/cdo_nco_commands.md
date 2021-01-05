@@ -8,6 +8,11 @@ cdo showyear file.nc
 cdo showdate file.nc
 ```
 
+* change the time variable from hours to days since reference date:
+```
+ncap2 -O -s "time=time/24" -s "time@units=\"days since 1900-01-01 00:00:00\"" file_hours_since_refdate.nc file_days_since_refdate.nc
+```
+
 ### Disaggregate files
 
 * extract data for a subdomain (e.g. longitudes from 120E to 90W and latitudes from 20N to 20S from all input fields):
