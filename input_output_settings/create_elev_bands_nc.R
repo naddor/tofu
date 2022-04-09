@@ -1,26 +1,27 @@
-write_elev_bands_nc<-function(elev_tab_format,lat,lon,
+write_elev_bands_nc<-function(elev_tab,
+                              lat,lon,
                               dir_input,name_elev_file){
 
   # this script produces a NetCDF file with three variables, each of them on a lon,lat,elev_band 3D structure:
-  # - area_frac: Fraction of the catchment covered by each elevation band
-  # - mean_elev: Mid-point elevation of each elevation band
-  # - prec_frac: Fraction of catchment precipitation that falls on each elevation band - same as area_frac
+  # - id_elevation_band: ID of elevation band (typically 1:N_ELEV_BAND)
+  # - mean_elev: Mean elevation of each elevation band
+  # - area_frac: Fraction of catchment are in each elevation band
 
   # test elevation table
-  if(dim(elev_tab_format)[2]!=3){
-    stop('elev_tab_format must have exactly three columns: indice_elevation_zone mid_point_elevation area_fraction')
+  if(dim(elev_tab)[2]!=3){
+    stop('elev_tab must have exactly three columns: id_elevation_band,mean_elev,area_frac')
   }
 
-  if(any(colnames(elev_tab_format)!=c("indice_elevation_zone","mid_point_elevation","area_fraction"))){
-    stop('elev_tab_format columns must be named: indice_elevation_zone mid_point_elevation area_fraction')
+  if(any(colnames(elev_tab)!=c("id_elevation_band","mean_elev","area_frac"))){
+    stop('elev_tab columns must be named: id_elevation_band mean_elev area_frac')
   }
 
-  if(abs(sum(elev_tab_format$area_fraction)-1)>1E-6){
+  if(abs(sum(elev_tab$area_frac)-1)>1E-6){
     stop('Fraction area of elevation bands do not add up to 1')
   }
 
   # define NetCDF file structure
-  n_elevation_zones<-dim(elev_tab_format)[1]
+  n_elevation_zones<-dim(elev_tab)[1]
   dim_elev_bands<-ncdim_def( "elevation_band", "-", 1:n_elevation_zones)
   dim_lon<-ncdim_def("longitude","degreesE",lon)
   dim_lat<-ncdim_def("latitude","degreesN",lat)
@@ -28,37 +29,34 @@ write_elev_bands_nc<-function(elev_tab_format,lat,lon,
   area_frac_nc<-ncvar_def('area_frac','-',dim=list(dim_lon,dim_lat,dim_elev_bands),missval = -9999,
                           longname='Fraction of the catchment covered by each elevation band')
   mean_elev_nc<-ncvar_def('mean_elev','m asl',dim=list(dim_lon,dim_lat,dim_elev_bands),missval = -9999,
-                          longname='Mid-point elevation of each elevation band')
-  prec_frac_nc<-ncvar_def('prec_frac','-',dim=list(dim_lon,dim_lat,dim_elev_bands),missval = -9999,
-                          longname='Fraction of catchment precipitation that falls on each elevation band - same as area_frac')
+                          longname='Mean elevation of each elevation band')
 
   # write to NetCDF file
   elev_file_nc<-paste0(dir_input,name_elev_file)
 
-  nc_conn<-nc_create(elev_file_nc,list(area_frac_nc,mean_elev_nc,prec_frac_nc))
-  ncvar_put(nc_conn,area_frac_nc,vals=elev_tab_format$area_fraction)
-  ncvar_put(nc_conn,mean_elev_nc,vals=elev_tab_format$mid_point_elevation)
-  ncvar_put(nc_conn,prec_frac_nc,vals=elev_tab_format$area_fraction)
+  nc_conn<-nc_create(elev_file_nc,list(area_frac_nc,mean_elev_nc))
+  ncvar_put(nc_conn,area_frac_nc,vals=elev_tab$area_frac)
+  ncvar_put(nc_conn,mean_elev_nc,vals=elev_tab$mean_elev)
   nc_close(nc_conn)
 
 }
 
-write_elev_bands_3d_nc<-function(area_frac,mean_elev,prec_frac,
+write_elev_bands_3d_nc<-function(id_elevation_band,mean_elev,area_frac,
                                  lat,lon,
                                  dir_input,name_elev_file){
 
   # this script produces a NetCDF file with three variables, each of them on a lon,lat,elev_band 3D structure:
-  # - area_frac: Fraction of the catchment covered by each elevation band
-  # - mean_elev: Mid-point elevation of each elevation band
-  # - prec_frac: Fraction of catchment precipitation that falls on each elevation band - same as area_frac
+  # - id_elevation_band: ID of elevation band (typically 1:N_ELEV_BAND)
+  # - mean_elev: Mean elevation of each elevation band
+  # - area_frac: Fraction of catchment are in each elevation band
 
-  # set value for NA - FUSE will use create mask by look at the first layer of mean_elev set to -9999
+  # set value for NA - FUSE will use create mask by looking at the first layer of mean_elev set to -9999
   na_val=-9999
 
   # test that dimensions match
-  dim_test<-do.call(rbind,lapply(list(area_frac,mean_elev,prec_frac),dim))
-  if(any(dim_test[,1]!=length(lon))){stop('first dimension of area_frac,mean_elev,prec_frac do not match the length of lon')}
-  if(any(dim_test[,2]!=length(lat))){stop('second dimension of area_frac,mean_elev,prec_frac do not match the length of lat')}
+  dim_test<-do.call(rbind,lapply(list(id_elevation_band,mid_elev,area_frac)))
+  if(any(dim_test[,1]!=length(lon))){stop('first dimension of id_elevation_band,area_frac,mid_elev do not match the length of lon')}
+  if(any(dim_test[,2]!=length(lat))){stop('second dimension of id_elevation_band,area_frac,mid_elev do not match the length of lat')}
 
   # test that area_frac adds up to 1
   err_sum_area<-abs(apply(area_frac,c(1,2),sum)-1)
@@ -80,17 +78,14 @@ write_elev_bands_3d_nc<-function(area_frac,mean_elev,prec_frac,
   area_frac_nc<-ncvar_def('area_frac','-',dim=list(dim_lon,dim_lat,dim_elev_bands),missval = na_val,
                           longname='Fraction of the catchment covered by each elevation band')
   mean_elev_nc<-ncvar_def('mean_elev','m asl',dim=list(dim_lon,dim_lat,dim_elev_bands),missval = na_val,
-                          longname='Mid-point elevation of each elevation band')
-  prec_frac_nc<-ncvar_def('prec_frac','-',dim=list(dim_lon,dim_lat,dim_elev_bands),missval = na_val,
-                          longname='Fraction of catchment precipitation that falls on each elevation band - same as area_frac')
+                          longname='Mean elevation of each elevation band')
 
   # write to NetCDF file
   elev_file_nc<-paste0(dir_input,name_elev_file)
 
-  nc_conn<-nc_create(elev_file_nc,list(area_frac_nc,mean_elev_nc,prec_frac_nc))
+  nc_conn<-nc_create(elev_file_nc,list(area_frac_nc,mean_elev_nc))
   ncvar_put(nc_conn,area_frac_nc,vals=area_frac)
   ncvar_put(nc_conn,mean_elev_nc,vals=mean_elev)
-  ncvar_put(nc_conn,prec_frac_nc,vals=prec_frac)
   nc_close(nc_conn)
 
 }
