@@ -1,21 +1,5 @@
 rm(list=ls())
 
-hostname<-system('hostname',intern=TRUE)
-
-if(hostname=='hydro-c1'){
-
-  source('/home/naddor/scripts/r_scripts/tofu/set_default_paths.R')
-
-} else if(strtrim(hostname,8)=='cheyenne'){
-
-  source('/glade/u/home/naddor/scripts/r_scripts/tofu/set_default_paths.R')
-
-} else {
-
-  stop(paste('Unknown hostname:',hostname))
-
-}
-
 fuse_id=902
 forcing_dataset<-'maurer'
 
