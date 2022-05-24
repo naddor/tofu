@@ -1,6 +1,7 @@
 write_file_manager<-function(file_name,fuse_id,
                              dir_input,dir_output,dir_settings,
-                             date_start_sim,date_end_sim,date_start_eval,date_end_eval){
+                             date_start_sim,date_end_sim,date_start_eval,date_end_eval,
+                             max_sce_runs=10000){
 
   content<-paste('FUSE_FILEMANAGER_V1.5
 ! *** paths
@@ -25,7 +26,7 @@ write_file_manager<-function(file_name,fuse_id,
 \'',date_end_eval,'\'                      ! date_end_eval    = date end evaluation period
 \'-9999\'                              ! numtim_sub       = number of time steps per sub-period [-9999 to run without sub-periods]
 ! *** SCE parameters - only considered in calib_sce mode
-\'10000\'                           ! MAXN          = maximum number of trials before optimization is terminated
+\'',max_sce_runs,'\'                           ! MAXN          = maximum number of trials before optimization is terminated
 \'3\'                               ! KSTOP         = number of shuffling loops the value must change by PCENTO (MAX=9)
 \'0.001\'                           ! PCENTO        = the percentage',sep='')
 
